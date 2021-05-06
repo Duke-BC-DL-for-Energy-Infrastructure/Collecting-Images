@@ -38,27 +38,34 @@ INPUT_FILEPATH = Path('data/'+FILENAME)
 OUTPUT_FILEPATH = Path('data/')
 
 # perform clustering
-REGIONS = ['NE', 'NW', 'EM'] # Northeast, Northwest, Eastern Midwest
-CLUSTERING_METHOD = 'DBSCAN'
+REGIONS = ['NE', 'NW', 'EM', 'SW'] # Northeast, Northwest, Eastern Midwest
+CLUSTERING_METHOD = ['DBSCAN']
 DBS_EPS = 0.4
 DBS_MIN_SAMPLES = 20
 
-def apply_clustering(file_path:Path = INPUT_FILEPATH, region: str=None,
-                     clustering_method: str = CLUSTERING_METHOD,
+def apply_clustering(input_filepath:Path = INPUT_FILEPATH,
+                     output_filepath:Path = OUTPUT_FILEPATH,
+                     region: str=None,
+                     clustering_method: list = CLUSTERING_METHOD,
                      eps:float = DBS_EPS,
                      min_samples:int = DBS_MIN_SAMPLES) -> pd.DataFrame:
-                     """ inputs a csv file with columns:
-                     name: image filename,
-                     lon, lat: image coordinates
-                     region: geographical area must be one of [NE, NW or EM]
-
-                     returns: a csv with same input data and additional column
+                     """
+                     Takes as input a csv file with column names name, lon, lat,
+                     region:
+                     Arguments:
+                        input_filepath: path to input csv
+                        output_filepath: path to store clustered data
+                        region: geographical area must be one of [NE, NW, EM, SW]
+                        clustering_method: unsupervised ML method.
+                        eps, min_samples: parameters of DBScan clustering method
+                     Returns:
+                        csv file with same input data and additional column
                         named cluster with corresponding cluster.
                      """
                      #download csv file
                      wt_df = pd.read_csv(INPUT_FILEPATH)
 
-                     if region in ['NE', 'NW', 'EM']:
+                     if region in ['NE', 'NW', 'EM', 'SW']:
                          print(f'clustering {region} region')
                          wt_df = wt_df.loc[wt_df.region == region]
 
@@ -66,22 +73,22 @@ def apply_clustering(file_path:Path = INPUT_FILEPATH, region: str=None,
                          print(f'clustering across all regions')
 
                      else:
-                         print(f'{region} is an invalid region [NE, NW, EM]')
+                         print(f'{region} is an invalid region [NE, NW, EM, SW]')
                          return
 
-                     wt_df = wt_df[["lon", "lat"]]
+                     wt_df_lon_lat = wt_df[["lon", "lat"]]
                      # scaling coordinates before fitting the cluster method
-                     wt_scaled = StandardScaler().fit_transform(wt_df)
+                     wt_scaled = StandardScaler().fit_transform(wt_df_lon_lat)
 
                      # fit clustering with eps and min_samples
-                     if CLUSTERING_METHOD.lower() == 'dbscan':
-                         print(f'Applying {CLUSTERING_METHOD}')
+                     if clustering_method.lower() == 'dbscan':
+                         print(f'Applying {clustering_method}')
                          dbscan = DBSCAN(eps=DBS_EPS,
                                          min_samples=DBS_MIN_SAMPLES).fit(wt_scaled)
                          labels = dbscan.labels_
                          wt_df["cluster"]=labels
                      else:
-                         print(f'{CLUSTERING_METHOD} is an invalid clustering'
+                         print(f'{clustering_method} is an invalid clustering'
                                 'method')
                          return
 
@@ -97,7 +104,16 @@ def apply_clustering(file_path:Path = INPUT_FILEPATH, region: str=None,
                      return wt_df
 
 
-def plot_clusters(region: str='NE'):
+def plot_clusters(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH):
+    """
+    Takes as input a csv file produced by the apply_clustering function:
+    Arguments:
+       output_filepath: path to store png file
+       region: geographical area must be one of [NE, NW or EM]
+    Returns:
+       png file with plot of data clustered
+    """
+
     FILENAME = f'{region}_clusters.csv'
     INPUT_FILEPATH = Path('data/'+FILENAME)
     wt_df = pd.read_csv(INPUT_FILEPATH)
@@ -149,11 +165,31 @@ def plot_clusters(region: str='NE'):
               f'region: \n $ \epsilon = {DBS_EPS}$ and min_samples '
               f'= {DBS_MIN_SAMPLES}', fontsize=14)
     plt.savefig(os.path.join(OUTPUT_FILEPATH,f'{region}_cluster.png'), dpi=300)
+    return
 
 
-def stratified_split(data: pd.DataFrame, n_splits: int = 5,
-                     train_size: int = 100, test_size: int  = 100,
+def stratified_split(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH,
+                     n_splits: int = 5, train_size: int = 100,
+                     test_size: int  = 100,
                      random_state: int = 42):
+
+                     """
+                     Takes as input a csv file produced by the apply_clustering
+                     function:
+                     Arguments:
+                        output_filepath: path to store png file
+                        region: geographical area must be one of [NE, NW, EM, SW]
+                        n_splits, train_size, test_size and random_state are
+                        arguments of the StratifiedShuffleSplit function from
+                        sklearn
+                        https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedShuffleSplit.html
+                     Returns:
+                        train and test csv files stratified by clusters
+                     """
+
+                     FILENAME = f'{region}_clusters.csv'
+                     INPUT_FILEPATH = Path('data/'+FILENAME)
+                     data = pd.read_csv(INPUT_FILEPATH)
 
                      #drop noise in clusters
                      data = data[data.cluster != -1]
@@ -167,8 +203,6 @@ def stratified_split(data: pd.DataFrame, n_splits: int = 5,
                          train_set = data.iloc[train_idx]
                          test_set = data.iloc[test_idx]
 
-                     
-
                      print('input data cluster distribution:')
                      print(data.cluster.value_counts(normalize=True))
 
@@ -178,9 +212,9 @@ def stratified_split(data: pd.DataFrame, n_splits: int = 5,
                      print('test data cluster distribution:')
                      print(test_set.cluster.value_counts(normalize=True))
 
-                     return train_set, test_set
+                     train_set.to_csv(os.path.join(OUTPUT_FILEPATH,
+                                  f'{region}_train.csv'), index=False)
 
-FILENAME = f'NE_clusters.csv'
-INPUT_FILEPATH = Path('data/'+FILENAME)
-wt_df = pd.read_csv(INPUT_FILEPATH)
-stratified_split(wt_df)
+                     test_set.to_csv(os.path.join(OUTPUT_FILEPATH,
+                                 f'{region}_test.csv'), index=False)
+                     return
