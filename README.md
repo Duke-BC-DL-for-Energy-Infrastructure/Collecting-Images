@@ -1,4 +1,3 @@
-# Collecting-Images
 <h1 align="center">Collecting images from GEE.</h1>
 
 <p align="center">
