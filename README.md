@@ -38,7 +38,7 @@ gee_download.py connects to the GEE API, validates account access and provides f
 
 - bbox_from_point: generates a bounding box (bbox) using a radial distance parameter from an input coordinate located at the center of the bbox.
 - get_NAIP_Task: uses the bounding box as input to download NAIP imagery from GEE platform into a bucket in Google's cloud storage service.
-- downloadGStorage: connect to the Google storage site and downloads its content to a local folder. **Be aware that data downloaded from GEE is in tif format, which includes metadata about the features if the image**
+- downloadGStorage: connect to the Google storage site and downloads its content to a local folder. **Be aware that data downloaded from GEE is in tif format, which includes metadata about the features of the image**
 
 ### Background Imagery
 Using input coordinates of latitude and longitude, this module generates a couple of new coordinates located at a distance in meters in the north east and south west directions. Then, we use those new coordinates as centers of the bounding boxes used to collect background imagery. We have to visually inspect that the images collected do not have ground truth wind turbines, so that these can be used to generate the new synthetic imagery dataset.  
