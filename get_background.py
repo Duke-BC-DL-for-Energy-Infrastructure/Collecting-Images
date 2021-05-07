@@ -83,7 +83,7 @@ def get_background_img(input_filepath:Path, gcp_bucket: str, distance: float):
     """
     df_temp = pd.read_csv(input_filepath)
 
-    for index, row in df_temp.loc[:2,:].iterrows():
+    for index, row in df_temp.loc[:,:].iterrows():
         #lat, lon = row['lat'], row['lon'];
         SE_lat, SE_lon = row['SE_lat'], row['SE_lon'];
         NW_lat, NW_lon = row['NW_lat'], row['NW_lon'];
@@ -103,7 +103,3 @@ def get_background_img(input_filepath:Path, gcp_bucket: str, distance: float):
                     time.sleep(1)
                 # Step 2: check the status of the request. It can be running or ready
             print(task.status())
-
-FILENAME = 'NE_train_background.csv'
-INPUT_FILEPATH = Path('data/'+FILENAME)
-get_background_img(INPUT_FILEPATH, BUCKET_NAME, 2000)
