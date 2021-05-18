@@ -1,4 +1,4 @@
-#code inspired by the 
+#code inspired by the
 
 import ee
 ee.Authenticate()
@@ -47,26 +47,21 @@ if __name__ == "__main__":
                         help='path to error log file',
                         default='data/error.log',
                         type=str)
-
     parser.add_argument('-o', '--output_dir',
                         help='path to output directory',
                         default='data/',
                         type=str)
     parser.add_argument('-lat', '--lat_col',
                         help='name of the column that contains the latitude',
-                        default='lat',
+                        default='LAT',
                         type=str)
     parser.add_argument('-lon', '--lon_col',
                         help='name of the column that contains the longitude',
-                        default='lon',
+                        default='LON',
                         type=str)
-    # parser.add_argument('-lc', '--land_cover_col',
-    #                     help='name of the column that contains the land cover type',
-    #                     default='LC_TYPE',
-    #                     type=str)
     parser.add_argument('-id', '--id_col',
                         help='name of the column that contains the point id',
-                        default='id',
+                        default='ID',
                         type=str)
 
     args = parser.parse_args()
