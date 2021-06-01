@@ -9,7 +9,7 @@ import pandas as pd
 
 import os
 
-from gee_download import bbox_from_point
+from gee_cloud_download import bbox_from_point
 from geetools import batch
 from tqdm import tqdm
 
@@ -37,15 +37,15 @@ def download_NAIP_toLocal(bbox, name, scale=1):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('-i', '--input',
-                    help='path to csv input file',
-                    type=str)
+                        help='path to csv input file',
+                        type=str)
     parser.add_argument('-d', '--distance',
                         help='side length for area of interest',
                         default=650,
                         type=int)
     parser.add_argument('-e', '--errorlog',
                         help='path to error log file',
-                        default='data/error.log',
+                        default='processed_data/wt/error.log',
                         type=str)
     parser.add_argument('-o', '--output_dir',
                         help='path to output directory',
