@@ -32,7 +32,7 @@ SW = ['NM', 'TX', 'CA', 'AZ', 'UT', 'NV', 'CO']
 REGIONS_NAME = ['NE', 'EM', 'NW', 'SW']
 
 
-def split_by_region(input_filepath:Path, output_filepath:Path):
+def split_by_region(input_filepath:Path, output_filepath:Path) -> None:
     """
     Takes as input a csv file with wind turbines info downloaded from eGrid
     https://atlas.eia.gov/datasets/united-states-wind-turbine-database-uswtdb:
