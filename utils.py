@@ -19,8 +19,8 @@ import tqdm
 
 # setup path to file with wind farm coordinates
 FILENAME = 'uswtdb_v3_3_20210114.csv'
-INPUT_FILEPATH = Path('data/'+FILENAME)
-OUTPUT_FILEPATH = Path('data/')
+INPUT_FILEPATH = Path('input_data/'+FILENAME)
+OUTPUT_FILEPATH = Path('processed_data/')
 
 
 # set of states per region
@@ -103,7 +103,7 @@ def check_img_size(dir_path:str, max_w: int=10000, max_h: int=10000):
     print(max_width, min_width, max_height, min_height)
     return
 
-    
+
 def resize_image(input_filepath:Path, output_filepath:Path, new_size:int):
     """
     Takes as input a path to image file (*.jpg) and crops it to square a
