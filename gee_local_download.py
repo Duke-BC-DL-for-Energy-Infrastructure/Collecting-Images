@@ -1,4 +1,4 @@
-#code inspired by the 
+#code inspired by the
 
 import ee
 ee.Authenticate()
@@ -9,7 +9,7 @@ import pandas as pd
 
 import os
 
-from gee_download import bbox_from_point
+from gee_cloud_download import bbox_from_point
 from geetools import batch
 from tqdm import tqdm
 
@@ -37,36 +37,31 @@ def download_NAIP_toLocal(bbox, name, scale=1):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('-i', '--input',
-                    help='path to csv input file',
-                    type=str)
+                        help='path to csv input file',
+                        type=str)
     parser.add_argument('-d', '--distance',
                         help='side length for area of interest',
                         default=650,
                         type=int)
     parser.add_argument('-e', '--errorlog',
                         help='path to error log file',
-                        default='data/error.log',
+                        default='processed_data/wt/error.log',
                         type=str)
-
     parser.add_argument('-o', '--output_dir',
                         help='path to output directory',
                         default='data/',
                         type=str)
     parser.add_argument('-lat', '--lat_col',
                         help='name of the column that contains the latitude',
-                        default='lat',
+                        default='LAT',
                         type=str)
     parser.add_argument('-lon', '--lon_col',
                         help='name of the column that contains the longitude',
-                        default='lon',
+                        default='LON',
                         type=str)
-    # parser.add_argument('-lc', '--land_cover_col',
-    #                     help='name of the column that contains the land cover type',
-    #                     default='LC_TYPE',
-    #                     type=str)
     parser.add_argument('-id', '--id_col',
                         help='name of the column that contains the point id',
-                        default='id',
+                        default='ID',
                         type=str)
 
     args = parser.parse_args()

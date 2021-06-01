@@ -17,8 +17,8 @@ ee.Initialize()
 
 # setup path to file with wind farm coordinates
 FILENAME = 'NE_train.csv'
-INPUT_FILEPATH = Path('data/'+FILENAME)
-OUTPUT_FILEPATH = Path('data/')
+INPUT_FILEPATH = Path('input_data/'+FILENAME)
+OUTPUT_FILEPATH = Path('processed_data/')
 REGIONS = ['NE', 'NW', 'EM', 'SW'] # Northeast, Northwest, Eastern Midwest
 
 # Define name for the bucket ('directory' in gcp) and local directory to store images
