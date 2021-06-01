@@ -20,7 +20,7 @@ import tqdm
 # setup path to file with wind farm coordinates
 FILENAME = 'uswtdb_v3_3_20210114.csv'
 INPUT_FILEPATH = Path('input_data/'+FILENAME)
-OUTPUT_FILEPATH = Path('processed_data/')
+OUTPUT_FILEPATH = Path('processed_data/wt')
 
 
 # set of states per region
