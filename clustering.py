@@ -33,9 +33,9 @@ from sklearn.preprocessing import StandardScaler
 import math
 
 # setup path to file with wind farm coordinates
-FILENAME = 'wt_coords.csv'
-INPUT_FILEPATH = Path('data/'+FILENAME)
-OUTPUT_FILEPATH = Path('data/')
+FILENAME = 'eGrid_wt_coords.csv'
+INPUT_FILEPATH = Path('processed_data/'+FILENAME)
+OUTPUT_FILEPATH = Path('processed_data/')
 
 # perform clustering
 REGIONS = ['NE', 'NW', 'EM', 'SW'] # Northeast, Northwest, Eastern Midwest
@@ -115,7 +115,7 @@ def plot_clusters(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH):
     """
 
     FILENAME = f'{region}_clusters.csv'
-    INPUT_FILEPATH = Path('data/'+FILENAME)
+    INPUT_FILEPATH = Path('processed_data/'+FILENAME)
     wt_df = pd.read_csv(INPUT_FILEPATH)
     # set area to plot
     print(wt_df.describe().loc[['min', 'max']])
@@ -188,7 +188,7 @@ def stratified_split(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH,
                      """
 
                      FILENAME = f'{region}_clusters.csv'
-                     INPUT_FILEPATH = Path('data/'+FILENAME)
+                     INPUT_FILEPATH = Path('processed_data/'+FILENAME)
                      data = pd.read_csv(INPUT_FILEPATH)
 
                      #drop noise in clusters
