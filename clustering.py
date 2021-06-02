@@ -43,7 +43,7 @@ REGIONS = ['NE', 'NW', 'EM', 'SW'] # Northeast, Northwest, Eastern Midwest
 CLUSTERING = {
     'DBSCAN': {
     'function': DBSCAN,
-    'params': [0.4, 20] #for DBSCAN remember implicit order [eps, min_samples]
+    'params': {'eps':0.4, 'min_samples':20}
     }
 }
 
@@ -89,7 +89,7 @@ def apply_clustering(input_filepath:Path = INPUT_FILEPATH,
                      cluster_function = CLUSTERING[method]['function']
                      params = CLUSTERING[method]['params']
 
-                     cluster = cluster_function(*params).fit(wt_scaled)
+                     cluster = cluster_function(**params).fit(wt_scaled)
                      labels = cluster.labels_
                      wt_df["cluster"]=labels
                      num_labels = set(labels)
@@ -104,7 +104,9 @@ def apply_clustering(input_filepath:Path = INPUT_FILEPATH,
                      return wt_df
 
 
-def plot_clusters(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH):
+def plot_clusters(region: str='NE',
+                  input_filepath:Path = INPUT_FILEPATH,
+                  output_filepath:Path = OUTPUT_FILEPATH):
     """
     Takes as input a csv file produced by the apply_clustering function:
     Arguments:
@@ -115,8 +117,8 @@ def plot_clusters(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH):
     """
 
     FILENAME = f'{region}_clusters.csv'
-    INPUT_FILEPATH = Path('processed_data/wt/'+FILENAME)
-    wt_df = pd.read_csv(INPUT_FILEPATH)
+    filepath = INPUT_FILEPATH/FILENAME
+    wt_df = pd.read_csv(filepath)
     # set area to plot
     print(wt_df.describe().loc[['min', 'max']])
 
@@ -167,7 +169,9 @@ def plot_clusters(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH):
     return
 
 
-def stratified_split(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH,
+def stratified_split(region: str='NE',
+                     input_filepath:Path = INPUT_FILEPATH,
+                     output_filepath:Path = OUTPUT_FILEPATH,
                      strata_column: str = 'cluster', n_splits: int = 5,
                      train_size: int = 100, test_size: int = 100,
                      random_state: int = 42) -> None:
@@ -187,8 +191,8 @@ def stratified_split(region: str='NE', output_filepath:Path = OUTPUT_FILEPATH,
                      """
 
                      FILENAME = f'{region}_clusters.csv'
-                     INPUT_FILEPATH = Path('processed_data/wt/'+FILENAME)
-                     data = pd.read_csv(INPUT_FILEPATH)
+                     filepath = INPUT_FILEPATH/FILENAME)
+                     data = pd.read_csv(filepath)
 
                      #drop noise in clusters
                      data = data[data[strata_column] != -1]
