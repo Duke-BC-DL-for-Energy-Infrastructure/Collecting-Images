@@ -1,4 +1,5 @@
 # Compiled source #
 ###################
+*.pyc
 processed_data/
 input_data/
