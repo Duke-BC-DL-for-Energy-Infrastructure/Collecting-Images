@@ -191,7 +191,13 @@ def stratified_split(input_filepath:Path,
 
                      FILENAME = f'{region}_clusters.csv'
                      filepath = input_filepath/FILENAME
-                     data = pd.read_csv(filepath)
+
+                     if os.path.exists(filepath):
+                         data = pd.read_csv(filepath)
+                         print('clustered input file {filepath}\n')
+
+                     else:
+                         data = pd.read_csv(input_filepath)
 
                      #drop noise in clusters
                      data = data[data[strata_column] != -1]
@@ -207,13 +213,13 @@ def stratified_split(input_filepath:Path,
                          test_set = data.iloc[test_idx]
 
                      print('input data cluster distribution:')
-                     print(data.cluster.value_counts(normalize=True))
+                     print(data[strata_column].value_counts(normalize=True))
 
                      print('training data cluster distribution:')
-                     print(train_set.cluster.value_counts(normalize=True))
+                     print(train_set[strata_column].value_counts(normalize=True))
 
                      print('test data cluster distribution:')
-                     print(test_set.cluster.value_counts(normalize=True))
+                     print(test_set[strata_column].value_counts(normalize=True))
 
                      train_set.to_csv(os.path.join(output_filepath,
                                   f'{region}_train.csv'), index=False)
