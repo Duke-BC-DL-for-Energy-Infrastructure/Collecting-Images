@@ -28,12 +28,9 @@ import matplotlib.cm as cm
 
 import math
 
-# setup path to file with wind farm coordinates
-# FILENAME = 'eGrid_wt_coords.csv'
-# INPUT_FILEPATH = Path('processed_data/wt')/FILENAME
-# OUTPUT_FILEPATH = Path('processed_data/wt')
+from typing import Tuple
 
-# perform clustering
+
 REGIONS = ['NE', 'NW', 'EM', 'SW'] # Northeast, Northwest, Eastern Midwest
 
 CLUSTERING = {
@@ -51,57 +48,56 @@ CLUSTERING = {
 def apply_clustering(input_filepath:Path,
                      output_filepath:Path,
                      region: str='NE', method: str='DBSCAN') -> pd.DataFrame:
-                     """
-                     Takes as input a csv file with column names name, lon, lat,
-                     region:
-                     Arguments:
-                        input_filepath: path to input csv
-                        output_filepath: path to store clustered data
-                        region: geographical area must be one of [NE, NW, EM, SW]
-                        clustering_method: unsupervised ML method.
-                        eps, min_samples: parameters of DBScan clustering method
-                     Returns:
-                        csv file with same input data and additional column
-                        named cluster with corresponding cluster.
-                     """
-                     #download csv file
-                     df = pd.read_csv(input_filepath)
+    """
+    Takes as input a csv file with columns name, lon, lat and region:
+    Arguments:
+     input_filepath: path to input csv
+     output_filepath: directory path to store clustered data
+     region: geographical area must be one of [NE, NW, EM, SW] or None to apply
+        clustering methods across all dataset points
+     clustering_method: unsupervised ML method.
+    Returns:
+     csv file with clustered data, identified in the 'cluster' added column
+    """
+    #download csv file
+    df = pd.read_csv(input_filepath)
 
-                     if region in ['NE', 'NW', 'EM', 'SW']:
-                         print(f'clustering {region} region')
-                         df = df.loc[df.region == region]
+    if region in ['NE', 'NW', 'EM', 'SW']:
+        print(f'clustering {region} region')
+        df = df.loc[df.region == region]
 
-                     elif region is None:
-                         print(f'clustering across all regions')
+    elif region is None:
+        print(f'clustering across all regions')
 
-                     else:
-                         print(f'{region} is an invalid region [NE, NW, EM, SW]')
-                         return
+    else:
+        print(f'{region} is an invalid region [NE, NW, EM, SW]')
+        return
 
-                     df_lon_lat = df[["lon", "lat"]]
-                     # scaling coordinates before fitting the cluster method
-                     df_scaled = StandardScaler().fit_transform(df_lon_lat)
+    df_lon_lat = df[["lon", "lat"]]
+    # scaling coordinates before fitting the cluster method
+    df_scaled = StandardScaler().fit_transform(df_lon_lat)
 
-                     # fit clustering with eps and min_samples
-                     #if CLUSTERING[cluster_method].lower() == 'dbscan':
-                     print(f'Applying {CLUSTERING[method]}')
+    print(f'Applying {CLUSTERING[method]}')
 
-                     cluster_function = CLUSTERING[method]['function']
-                     params = CLUSTERING[method]['params']
+    cluster_function = CLUSTERING[method]['function']
+    params = CLUSTERING[method]['params']
 
-                     cluster = cluster_function(**params).fit(df_scaled)
-                     labels = cluster.labels_
-                     df["cluster"]=labels
-                     num_labels = set(labels)
-                     realClusterNum=len(num_labels) - (1 if -1 in labels else 0)
-                     clusterNum = len(num_labels)
-                     print(f'There are {realClusterNum} clusters, excluding noise')
-                     for clust_number in num_labels:
-                         clust_set = df[df.cluster == clust_number]
-                         print(f'cluster {clust_number} has {len(clust_set)} records')
-                     df.to_csv(os.path.join(output_filepath,
-                                  f'{region}_clusters.csv'), index=False)
-                     return df
+    cluster = cluster_function(**params).fit(df_scaled)
+    labels = cluster.labels_
+    df["cluster"]=labels
+
+    # check # of clusters excluding noise (-1), if cluster method produce noise
+    num_labels = set(labels)
+    realClusterNum=len(num_labels) - (1 if -1 in labels else 0)
+    clusterNum = len(num_labels)
+    print(f'There are {realClusterNum} clusters, excluding noise')
+
+    for clust_number in num_labels:
+        clust_set = df[df.cluster == clust_number]
+        print(f'cluster {clust_number} has {len(clust_set)} records')
+        df.to_csv(os.path.join(output_filepath, f'{region}_clusters.csv'),
+                  index=False)
+    return df
 
 
 def plot_clusters(input_filepath:Path,
@@ -168,62 +164,52 @@ def plot_clusters(input_filepath:Path,
     return
 
 
-def stratified_split(input_filepath:Path,
-                     output_filepath:Path,
-                     region: str='NE',
+def stratified_split(df:pd.DataFrame,
                      strata_column: str = 'cluster', n_splits: int = 5,
                      train_size: int = 100, test_size: int = 100,
-                     random_state: int = 42) -> None:
+                     random_state: int = 42) -> Tuple:
 
-                     """
-                     Takes as input a csv file produced by the apply_clustering
-                     function:
-                     Arguments:
-                        output_filepath: path to store png file
-                        region: geographical area must be one of [NE, NW, EM, SW]
-                        n_splits, train_size, test_size and random_state are
-                        arguments of the StratifiedShuffleSplit function from
-                        sklearn
-                        https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedShuffleSplit.html
-                     Returns:
-                        train and test csv files stratified by clusters
-                     """
+    """
+    Takes as input a dataframe:
+    Arguments:
+     df: input dataframe
+     strata_column: column used as reference for stratification
+     n_splits, train_size, test_size and random_state are arguments of the
+     StratifiedShuffleSplit function from scikit-learn.
+    Returns:
+     train and test dataframes stratified by user defined strata_column
+    """
 
-                     FILENAME = f'{region}_clusters.csv'
-                     filepath = input_filepath/FILENAME
+    # check for noise in strata_column
+    labels = set(df[strata_column])
 
-                     if os.path.exists(filepath):
-                         data = pd.read_csv(filepath)
-                         print('clustered input file {filepath}\n')
+    if -1 in labels:
+        #drop noise in clusters
+        df = df[df[strata_column] != -1]
 
-                     else:
-                         data = pd.read_csv(input_filepath)
+    sss = StratifiedShuffleSplit(n_splits = n_splits,
+                                 train_size = train_size,
+                                 test_size = test_size,
+                                 random_state = random_state)
 
-                     #drop noise in clusters
-                     data = data[data[strata_column] != -1]
+    try:
+        for train_idx, test_idx in sss.split(df, df[strata_column]):
+            train_set = df.iloc[train_idx]
+            test_set = df.iloc[test_idx]
+        pass
 
-                     sss = StratifiedShuffleSplit(n_splits = n_splits,
-                                                  train_size = train_size,
-                                                  test_size = test_size,
-                                                  random_state = random_state)
+    except ValueError as e:
+        print(f'Try stratifying on another column. \'{strata_column}\''
+              f' has a class with only one member. {e}')
+        return None, None
 
-                     for train_idx, test_idx in sss.split(data,
-                                                          data[strata_column]):
-                         train_set = data.iloc[train_idx]
-                         test_set = data.iloc[test_idx]
+    print('input data cluster distribution:')
+    print(df[strata_column].value_counts(normalize=True))
 
-                     print('input data cluster distribution:')
-                     print(data[strata_column].value_counts(normalize=True))
+    print('training data cluster distribution:')
+    print(train_set[strata_column].value_counts(normalize=True))
 
-                     print('training data cluster distribution:')
-                     print(train_set[strata_column].value_counts(normalize=True))
+    print('test data cluster distribution:')
+    print(test_set[strata_column].value_counts(normalize=True))
 
-                     print('test data cluster distribution:')
-                     print(test_set[strata_column].value_counts(normalize=True))
-
-                     train_set.to_csv(os.path.join(output_filepath,
-                                  f'{region}_train.csv'), index=False)
-
-                     test_set.to_csv(os.path.join(output_filepath,
-                                 f'{region}_test.csv'), index=False)
-                     return
+    return train_set, test_set
