@@ -156,6 +156,7 @@ def get_tower_coords(filename:Path) -> gpd.GeoDataFrame:
                                             'tx_line_length':row['SHAPE_Leng'],
                                             'voltage':row['VOLTAGE'],
                                             'state':row['state'],
+                                            'region':row['region'],
                                             'owner':row['OWNER'],
                                             'lon':x,'lat':y
                                             }))
@@ -170,8 +171,8 @@ def get_tower_coords(filename:Path) -> gpd.GeoDataFrame:
                    index=False)
     return
 
-filepath = os.path.join(DIR_PATH, INPUT_FILENAME)
-split_txlines_by_region(filepath, OUTPUT_PATH, REGION_NAMES, REGION_STATES)
-
+# filepath = os.path.join(DIR_PATH, INPUT_FILENAME)
+# split_txlines_by_region(filepath, OUTPUT_PATH, REGION_NAMES, REGION_STATES)
+#
 filepath = os.path.join(OUTPUT_PATH, 'tx_lines.csv')
 get_tower_coords(filepath)
