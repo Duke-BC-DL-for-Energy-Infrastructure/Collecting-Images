@@ -176,9 +176,16 @@ def get_tower_coords(filename:Path) -> pd.DataFrame:
     return temp_df
 
 
-def electric_voltage_subset(df:pd.DataFrame) -> pd.DataFrame:
+def df_subset(df:pd.DataFrame, feature: str = 'voltage',
+              min_value: float = -float('Inf'),
+              max_value: float = float('Inf')) -> pd.DataFrame:
     '''
     Given the tower coordinates dataframe, apply certain criteria tu subset
-    the dataset and apply clustering methods
-
+    the dataset.
+    Arguments:
+        df: input df to subset on a certain feature
+        feature: column to which apply the subsetting min and max values
+        min_value, max_value: minimum and maximum value to apply on feature
+    Returns a subset df
     '''
+    return df.loc[(df[feature] >= min_value) & (df[feature] <= max_value)]
