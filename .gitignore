@@ -3,3 +3,4 @@
 *.pyc
 processed_data/
 input_data/
+__pychace__
