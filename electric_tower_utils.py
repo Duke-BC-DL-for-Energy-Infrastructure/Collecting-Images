@@ -64,8 +64,12 @@ def split_txlines_by_region(filepath: Path, output_dir: Path,
     Given shapefile with tx_lines across the US, group them by states within
     a region (NE, EM, NW, SW)
     Arguments:
-        input_path: path to shapefile with CRS EPSG 4326
-
+        filepath: path to input shapefile from HIFLD
+        output_dir: folder to store output csv
+        region_names: criteria used to subset dataset by region (NE, NW, SW, EM)
+        region_states: US states that comprises each geographical region
+    Returns:
+        csv with tx lines coordinates grouped by region and US states.
     '''
     tmp_gdf = gpd.read_file(filepath)
 
@@ -117,7 +121,7 @@ def split_txlines_by_region(filepath: Path, output_dir: Path,
     logf.close()
     return
 
-def get_tower_coords(filename:Path) -> gpd.GeoDataFrame:
+def get_tower_coords(filename:Path) -> pd.DataFrame:
     '''
     From a tx lines csv file with geometry as LINESTRING get POINTS that
     correspond to each tower coordinate. Output file is stored within the same
@@ -169,10 +173,12 @@ def get_tower_coords(filename:Path) -> gpd.GeoDataFrame:
     logf.close()
     temp_df.to_csv(os.path.join(output_dir, 'tower_coordinates.csv'),
                    index=False)
-    return
+    return temp_df
 
-# filepath = os.path.join(DIR_PATH, INPUT_FILENAME)
-# split_txlines_by_region(filepath, OUTPUT_PATH, REGION_NAMES, REGION_STATES)
-#
-filepath = os.path.join(OUTPUT_PATH, 'tx_lines.csv')
-get_tower_coords(filepath)
+
+def electric_voltage_subset(df:pd.DataFrame) -> pd.DataFrame:
+    '''
+    Given the tower coordinates dataframe, apply certain criteria tu subset
+    the dataset and apply clustering methods
+
+    '''

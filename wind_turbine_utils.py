@@ -32,7 +32,7 @@ SW = ['NM', 'TX', 'CA', 'AZ', 'UT', 'NV', 'CO']
 REGIONS_NAME = ['NE', 'EM', 'NW', 'SW']
 
 
-def split_by_region(input_filepath:Path, output_filepath:Path) -> None:
+def split_wind_turbines_by_region(input_file:Path, output_dir:Path) -> None:
     """
     Takes as input a csv file with wind turbines info downloaded from eGrid
     https://atlas.eia.gov/datasets/united-states-wind-turbine-database-uswtdb:
@@ -45,7 +45,7 @@ def split_by_region(input_filepath:Path, output_filepath:Path) -> None:
     """
 
     fields = ['t_state','p_name', 'xlong', 'ylat']
-    eGrid_wt_df = pd.read_csv(input_filepath, usecols=fields)
+    eGrid_wt_df = pd.read_csv(input_file, usecols=fields)
 
     conditions = [
         eGrid_wt_df['t_state'].isin(NE),
@@ -57,7 +57,7 @@ def split_by_region(input_filepath:Path, output_filepath:Path) -> None:
     eGrid_wt_df['region'] = np.select(conditions, outputs, 'Other')
     eGrid_wt_df.rename(columns={'t_state':'state', 'p_name':'name',
                                 'xlong':'lon', 'ylat':'lat'}, inplace=True)
-    eGrid_wt_df.to_csv(os.path.join(OUTPUT_FILEPATH,
+    eGrid_wt_df.to_csv(os.path.join(output_dir,
                        f'eGrid_wt_coords.csv'), index=False)
     return
 
