@@ -4,31 +4,21 @@ import pandas as pd
 from pathlib import Path
 from argparse import ArgumentParser
 
-from wind_turbine_utils import REGION_NAMES
+from CONSTANTS import REGION_NAMES
 from clustering import apply_clustering, stratified_split, CLUSTERING
 
-DIR_PATH = Path('processed_data/wt')
-FILENAME = 'eGrid_wt_coords.csv'
-
-input_file = os.path.join(DIR_PATH, FILENAME)
 
 EPSILON = [0.4, 0.4, 0.4, 0.4]
 MIN_SAMPLES = [20, 20, 50, 20]
-
-clustered_turbines = []
-
-for region, epsilon, min_samples in zip(REGION_NAMES, EPSILON, MIN_SAMPLES):
-
-    CLUSTERING['DBSCAN']['params']['eps'] = epsilon
-    CLUSTERING['DBSCAN']['params']['min_samples'] = min_samples
-
-    clustered_region = apply_clustering(input_file, DIR_PATH, region)
-    clustered_turbines.append(clustered_region)
 
 
 if __name__ == "__main__":
 
     parser = ArgumentParser()
+    parser.add_argument('-i', '--input',
+                        help='path to csv input file',
+                        default='processed_data/wt/eGrid_wt_coords.csv',
+                        type=str)
     parser.add_argument('-e', '--errorlog',
                         help='path to error log file',
                         default='processed_data/wt/error.log',
@@ -52,6 +42,18 @@ if __name__ == "__main__":
                         type=int)
 
     args = parser.parse_args()
+
+    clustered_turbines = []
+
+    for region, epsilon, min_samples in zip(REGION_NAMES, EPSILON, MIN_SAMPLES):
+
+        CLUSTERING['DBSCAN']['params']['eps'] = epsilon
+        CLUSTERING['DBSCAN']['params']['min_samples'] = min_samples
+
+        clustered_region = apply_clustering(args.input,
+                                            args.output_dir,
+                                            region=region)
+        clustered_turbines.append(clustered_region)
 
     df = pd.concat(clustered_turbines)
 
