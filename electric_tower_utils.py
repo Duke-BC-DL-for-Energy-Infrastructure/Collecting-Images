@@ -21,31 +21,8 @@ from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm
 
+from CONSTANTS import REGION_NAMES, REGION_STATES, US_STATES
 
-DIR_PATH = Path('input_data/Electric_Power_Transmission_Lines-shp')
-INPUT_FILENAME = 'Transmission_Lines.shp'
-
-OUTPUT_PATH = Path('processed_data/et')
-
-# US state's border (polygons) from states_21basic dataset from
-# https://hub.arcgis.com/datasets/
-
-US_STATES_DIRECTORY = Path('input_data/states_21basic')
-US_STATES_FILENAME = 'states.shp'
-US_STATES = gpd.read_file(os.path.join(US_STATES_DIRECTORY, US_STATES_FILENAME))
-
-# set of states per region
-NE = ['Pennsylvania', 'New York', 'New Jersey', 'Delaware', 'Maryland',
-      'Connecticut', 'Massachusetts', 'Vermont', 'Maine', 'New Hampshire']
-EM = ['Minnesota', 'Iowa', 'Missouri', 'Michigan', 'Wisconsin', 'Illinois',
-      'Indiana', 'Ohio']
-NW = ['Washington', 'Idaho', 'Oregon', 'Montana', 'Wyoming']
-SW = ['New Mexico', 'Texas', 'California', 'Arizona', 'Utah', 'Nevada',
-      'Colorado']
-
-# using the same region distribution
-REGION_NAMES = ['NE', 'EM', 'NW', 'SW']
-REGION_STATES = [NE, EM, NW, SW]
 
 def convert_to_EPSG4326(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     '''

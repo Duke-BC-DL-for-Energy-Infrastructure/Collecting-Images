@@ -17,19 +17,7 @@ from PIL import Image
 #track function's progress
 import tqdm
 
-# setup path to file with wind farm coordinates
-FILENAME = 'uswtdb_v3_3_20210114.csv'
-INPUT_FILEPATH = Path('input_data/'+FILENAME)
-OUTPUT_FILEPATH = Path('processed_data/wt')
-
-
-# set of states per region
-NE = ['PE', 'NY', 'NJ', 'DE', 'MD', 'CT', 'MA', 'VM', 'ME', 'NH']
-EM = ['MN', 'IA', 'MO', 'MI', 'WI', 'IL', 'IN', 'OH']
-NW = ['WA', 'ID', 'OR', 'MT', 'WY']
-SW = ['NM', 'TX', 'CA', 'AZ', 'UT', 'NV', 'CO']
-
-REGIONS_NAME = ['NE', 'EM', 'NW', 'SW']
+from CONSTANTS import NE_ab, EM_ab, NW_ab, SW_ab, REGION_NAMES
 
 
 def split_wind_turbines_by_region(input_file:Path, output_dir:Path) -> None:
@@ -48,12 +36,12 @@ def split_wind_turbines_by_region(input_file:Path, output_dir:Path) -> None:
     eGrid_wt_df = pd.read_csv(input_file, usecols=fields)
 
     conditions = [
-        eGrid_wt_df['t_state'].isin(NE),
-        eGrid_wt_df['t_state'].isin(EM),
-        eGrid_wt_df['t_state'].isin(NW),
-        eGrid_wt_df['t_state'].isin(SW)
+        eGrid_wt_df['t_state'].isin(NE_ab),
+        eGrid_wt_df['t_state'].isin(EM_ab),
+        eGrid_wt_df['t_state'].isin(NW_ab),
+        eGrid_wt_df['t_state'].isin(SW_ab)
         ]
-    outputs = REGIONS_NAME
+    outputs = REGION_NAMES
     eGrid_wt_df['region'] = np.select(conditions, outputs, 'Other')
     eGrid_wt_df.rename(columns={'t_state':'state', 'p_name':'name',
                                 'xlong':'lon', 'ylat':'lat'}, inplace=True)
