@@ -3,4 +3,5 @@
 *.pyc
 processed_data/
 input_data/
+images/
 __pychace__

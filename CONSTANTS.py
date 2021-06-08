@@ -1,6 +1,7 @@
 import os
 import geopandas as gpd
 
+from sklearn.cluster import DBSCAN, SpectralClustering
 from pathlib import Path
 
 REGION_NAMES = ['NE', 'EM', 'NW', 'SW']
@@ -42,3 +43,15 @@ ELECTRIC_TOWERS_FILEPATH = Path('input_data/'
                                 ELECTRIC_TOWERS_FILENAME
 
 ELECTRIC_TOWERS_OUTPUT_DIR = Path('processed_data/et')
+
+# Clustering functions and parameters
+CLUSTERING = {
+    'DBSCAN': {
+    'function': DBSCAN,
+    'params': {'eps':0.3, 'min_samples':10}
+    },
+    'SC': {
+    'function':SpectralClustering,
+    'params': {'n_clusters': 4, 'affinity':'nearest_neighbors'}
+    }
+}

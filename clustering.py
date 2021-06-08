@@ -29,25 +29,12 @@ import matplotlib.cm as cm
 import math
 
 from typing import Tuple
-
-
-REGIONS = ['NE', 'NW', 'EM', 'SW'] # Northeast, Northwest, Eastern Midwest
-
-CLUSTERING = {
-    'DBSCAN': {
-    'function': DBSCAN,
-    'params': {'eps':0.4, 'min_samples':20}
-    },
-    'SC': {
-    'function':SpectralClustering,
-    'params': {'n_clusters': 4, 'affinity':'nearest_neighbors'}
-    }
-}
-
+from CONSTANTS import CLUSTERING
 
 def apply_clustering(input_filepath:Path,
                      output_filepath:Path,
-                     region: str='NE', method: str='DBSCAN') -> pd.DataFrame:
+                     region: str, method: str='DBSCAN',
+                     save_file = False) -> pd.DataFrame:
     """
     Takes as input a csv file with columns name, lon, lat and region:
     Arguments:
@@ -95,6 +82,8 @@ def apply_clustering(input_filepath:Path,
     for clust_number in num_labels:
         clust_set = df[df.cluster == clust_number]
         print(f'cluster {clust_number} has {len(clust_set)} records')
+
+    if save_file:
         df.to_csv(os.path.join(output_filepath, f'{region}_clusters.csv'),
                   index=False)
     return df
@@ -165,8 +154,9 @@ def plot_clusters(input_filepath:Path,
 
 
 def stratified_split(df:pd.DataFrame,
-                     strata_column: str = 'cluster', n_splits: int = 5,
-                     train_size: int = 100, test_size: int = 100,
+                     strata_column: str,
+                     train_size: int, test_size: int,
+                     n_splits: int = 5,
                      random_state: int = 42) -> Tuple:
 
     """

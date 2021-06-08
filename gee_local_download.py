@@ -1,19 +1,17 @@
 #code inspired by the
-
+import os
 import ee
-ee.Authenticate()
-ee.Initialize()
 
 import numpy as np
 import pandas as pd
 
-import os
-
-from gee_cloud_download import bbox_from_point
+from gee_utils import bbox_from_point
 from geetools import batch
 from tqdm import tqdm
 
 from argparse import ArgumentParser
+
+ee.Initialize()
 
 def convert_bbox_latlon_lonlat(bbox):
     # convert bbox from lat lon to lon lat
@@ -45,23 +43,32 @@ if __name__ == "__main__":
                         type=int)
     parser.add_argument('-e', '--errorlog',
                         help='path to error log file',
-                        default='processed_data/wt/error.log',
+                        default='images/error.log',
                         type=str)
     parser.add_argument('-o', '--output_dir',
                         help='path to output directory',
-                        default='data/',
+                        default='images/RGB_N',
                         type=str)
     parser.add_argument('-lat', '--lat_col',
                         help='name of the column that contains the latitude',
-                        default='LAT',
+                        default='lat',
                         type=str)
     parser.add_argument('-lon', '--lon_col',
                         help='name of the column that contains the longitude',
-                        default='LON',
+                        default='lon',
+                        type=str)
+    parser.add_argument('-st', '--strata_column',
+                        help='name of column used to stratify the split in '
+                             'train and test subsets',
+                        default='cluster',
+                        type=str)
+    parser.add_argument('-fn', '--filename',
+                        help='name of column to use in the filename',
+                        default='state',
                         type=str)
     parser.add_argument('-id', '--id_col',
                         help='name of the column that contains the point id',
-                        default='ID',
+                        default='id',
                         type=str)
 
     args = parser.parse_args()
@@ -73,15 +80,17 @@ if __name__ == "__main__":
 
     logf = open(args.errorlog, "w")
 
-    for state in tqdm(points.state.unique()):
-        print(state)
-        tmp = points[points.state == state]
+    for item in tqdm(points[args.strata_column].unique()):
+        print(item)
+        tmp = points[points[args.strata_column] == item]
 
         for i, point in tqdm(tmp.iterrows()):
-            fname = f"{args.output_dir}/{point.state}_id_{point[args.id_col]}_{i}"
+            fname = f"{args.output_dir}/"\
+                    f"{point[args.filename]}_id_{point[args.id_col]}_{i}"
             if os.path.exists(f'{fname}'): # or point['rand_point_id'] in error_points:
                 continue
-            bbox = bbox_from_point((point[args.lat_col], point[args.lon_col]), args.distance)
+            bbox = bbox_from_point((point[args.lat_col], point[args.lon_col]),
+                                   args.distance)
             bbox = convert_bbox_latlon_lonlat(bbox)
             try:
                 download_NAIP_toLocal(bbox, fname)
