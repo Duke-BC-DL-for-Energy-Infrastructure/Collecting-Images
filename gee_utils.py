@@ -10,8 +10,8 @@ import ee # google earth engine (gee) api
 import os # manage os
 import time # set timer
 import math # geopositional transformation
-import folium # bridge between Python and Leaflet
-import geehydro # add add_layers functionality to folium
+#import folium # bridge between Python and Leaflet
+#import geehydro # add add_layers functionality to folium
 import pandas as pd # dataframe manipulation
 
 from ee import batch # manage batches of images from gee
