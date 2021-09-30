@@ -5,3 +5,8 @@ processed_data/
 input_data/
 images/
 __pychace__
+
+# storage directory
+RGB_background/
+RGB_N_test/
+RGB_N_train/
